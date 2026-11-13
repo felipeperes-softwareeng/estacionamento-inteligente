@@ -12,3 +12,9 @@ Regras do domínio:
 8. O mensalista só fica isento se a mensalidade estiver em dia. Caso contrário, paga a tarifa normal.
 9. Cada estacionamento é cadastrado com nome e quantidade de vagas por tipo. Antes do menu, é preciso selecionar um estacionamento cadastrado, e toda operação acontece nele.
 
+Desafios escolhidos:
+D - Relatórios com Streams - No mínimo 3 relatórios gerenciais com lambdas: filter, map, sorted e Collectors.groupingBy.
+C - Padrão Strategy - Uma regra de cálculo (tarifa, frete, desconto, alçada) trocável em tempo de execução por meio de uma interface.
+F - Arquitetura em camadas - Pacotes dominio, aplicacao e app; o domínio não importa Scanner nem imprime no console.
+
+
