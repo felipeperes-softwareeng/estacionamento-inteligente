@@ -7,30 +7,67 @@ public class Main {
 
     public static void main(String[] args) {
 
-        // Criando um veículo
+        // Criar veículo
         Placa placa = new Placa("ABC1D23");
-        Veiculo carro = new Veiculo(placa, TipoVeiculo.CARRO);
+        Veiculo carro = new Veiculo(
+                placa,
+                TipoVeiculo.CARRO
+        );
 
-        // Criando uma vaga de carro
+        // Criar e ocupar uma vaga
         Vaga vaga = new VagaCarro("A01");
-
-        // Estado inicial
-        System.out.println("Estado inicial: " + vaga.getStatus());
-
-        // Ocupando a vaga
         vaga.ocupar(carro);
-        System.out.println("Após ocupar: " + vaga.getStatus());
 
-        // Liberando a vaga
-        vaga.liberar();
-        System.out.println("Após liberar: " + vaga.getStatus());
+        // Criar ticket
+        Ticket ticket = new Ticket("T001", carro, vaga);
 
-        // Bloqueando para manutenção
-        vaga.bloquear();
-        System.out.println("Após bloquear: " + vaga.getStatus());
+        System.out.println("===== TICKET CRIADO =====");
+        System.out.println("ID: " + ticket.getId());
+        System.out.println("Status: " + ticket.getStatus());
 
-        // Desbloqueando
-        vaga.desbloquear();
-        System.out.println("Após desbloquear: " + vaga.getStatus());
+        // TESTE 1 - Encerrar sem pagamento
+        System.out.println("\n===== TESTE 1 =====");
+
+        try {
+            ticket.encerrar();
+        } catch (IllegalStateException e) {
+            System.out.println(
+                    "Operação recusada: " + e.getMessage()
+            );
+        }
+
+        // TESTE 2 - Realizar pagamento
+        System.out.println("\n===== TESTE 2 =====");
+
+        ticket.pagar(20.00);
+
+        System.out.println("Pagamento realizado!");
+        System.out.println("Valor pago: R$ " + ticket.getValorPago());
+        System.out.println("Status: " + ticket.getStatus());
+
+        // TESTE 3 - Encerrar ticket pago
+        System.out.println("\n===== TESTE 3 =====");
+
+        ticket.encerrar();
+
+        System.out.println("Ticket encerrado com sucesso!");
+        System.out.println("Status: " + ticket.getStatus());
+
+        // TESTE 4 - Tentar encerrar novamente
+        System.out.println("\n===== TESTE 4 =====");
+
+        try {
+            ticket.encerrar();
+        } catch (IllegalStateException e) {
+            System.out.println(
+                    "Operação recusada: " + e.getMessage()
+            );
+        }
+
+        // Resultado final
+        System.out.println("\n===== RESULTADO FINAL =====");
+        System.out.println("Ticket: " + ticket.getId());
+        System.out.println("Status: " + ticket.getStatus());
+        System.out.println("Valor pago: R$ " + ticket.getValorPago());
     }
 }
