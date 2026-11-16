@@ -20,11 +20,11 @@ public abstract class Vaga implements Comparable<Vaga> {
         this.veiculoAtual = null;
     }
 
-    // Método abstrato: cada tipo de vaga define sua compatibilidade (R04)
+    // R04 - Cada tipo de vaga define sua compatibilidade
     public abstract boolean aceita(Veiculo veiculo);
 
-    // Ocupa a vaga somente se estiver livre e aceitar o veículo
-    public void ocupar(Veiculo veiculo) {
+    // RN01 e RN02 - Ocupação controlada pelo domínio
+    void ocupar(Veiculo veiculo) {
 
         if (veiculo == null) {
             throw new IllegalArgumentException(
@@ -33,29 +33,23 @@ public abstract class Vaga implements Comparable<Vaga> {
         }
 
         if (this.status == StatusVaga.BLOQUEADA) {
-            throw new IllegalStateException(
-                    "A vaga " + codigo + " está bloqueada para manutenção."
-            );
+            throw new VagaBloqueadaException(codigo);
         }
 
         if (this.status == StatusVaga.OCUPADA) {
-            throw new IllegalStateException(
-                    "A vaga " + codigo + " já está ocupada."
-            );
+            throw new VagaOcupadaException(codigo);
         }
 
         if (!this.aceita(veiculo)) {
-            throw new IllegalArgumentException(
-                    "Veículo incompatível com a vaga " + codigo + "."
-            );
+            throw new VagaIncompativelException(codigo);
         }
 
         this.veiculoAtual = veiculo;
         this.status = StatusVaga.OCUPADA;
     }
 
-    // Libera somente uma vaga ocupada
-    public void liberar() {
+    // RN05 - Liberação coordenada pelo estacionamento
+    void liberar() {
 
         if (this.status != StatusVaga.OCUPADA) {
             throw new IllegalStateException(
@@ -67,20 +61,21 @@ public abstract class Vaga implements Comparable<Vaga> {
         this.status = StatusVaga.LIVRE;
     }
 
-    // Bloqueia somente uma vaga livre
+    // RN07 - Bloqueio para manutenção
     public void bloquear() {
 
-        if (this.status != StatusVaga.LIVRE) {
-            throw new IllegalStateException(
-                    "A vaga " + codigo +
-                            " não pode ser bloqueada porque não está livre."
-            );
+        if (this.status == StatusVaga.OCUPADA) {
+            throw new VagaOcupadaException(codigo);
+        }
+
+        if (this.status == StatusVaga.BLOQUEADA) {
+            throw new VagaBloqueadaException(codigo);
         }
 
         this.status = StatusVaga.BLOQUEADA;
     }
 
-    // Desbloqueia somente uma vaga bloqueada
+    // RN07 - Desbloqueio da vaga
     public void desbloquear() {
 
         if (this.status != StatusVaga.BLOQUEADA) {
@@ -92,7 +87,7 @@ public abstract class Vaga implements Comparable<Vaga> {
         this.status = StatusVaga.LIVRE;
     }
 
-    // Ordenação natural pelo código da vaga (R11)
+    // R11 - Ordenação natural pelo código
     @Override
     public int compareTo(Vaga outra) {
         return this.codigo.compareTo(outra.codigo);

@@ -47,13 +47,12 @@ public class Ticket {
         this.valorPago = 0.0;
     }
 
-    // RN05 - Registrar pagamento do ticket
+    // RN05 - Pagamento do ticket
     public void pagar(double valor) {
 
         if (this.status != StatusTicket.ABERTO) {
-            throw new IllegalStateException(
-                    "O ticket " + id
-                            + " não está aberto para pagamento."
+            throw new TransicaoEstadoTicketException(
+                    id, status, "pagar"
             );
         }
 
@@ -67,13 +66,16 @@ public class Ticket {
         this.status = StatusTicket.PAGO;
     }
 
-    // RN05 - Encerrar somente um ticket pago
-    public void encerrar() {
+    // RN05 - Encerramento controlado pelo domínio
+    void encerrar() {
+
+        if (this.status == StatusTicket.ABERTO) {
+            throw new TicketNaoPagoException(id);
+        }
 
         if (this.status != StatusTicket.PAGO) {
-            throw new IllegalStateException(
-                    "O ticket " + id
-                            + " não pode ser encerrado porque não está PAGO."
+            throw new TransicaoEstadoTicketException(
+                    id, status, "encerrar"
             );
         }
 

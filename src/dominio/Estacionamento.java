@@ -18,13 +18,13 @@ public class Estacionamento {
     public Estacionamento(String nome, List<Vaga> vagas) {
 
         if (nome == null || nome.isBlank()) {
-            throw new IllegalArgumentException(
+            throw new EstacionamentoInvalidoException(
                     "O nome do estacionamento é obrigatório."
             );
         }
 
         if (vagas == null || vagas.isEmpty()) {
-            throw new IllegalArgumentException(
+            throw new EstacionamentoInvalidoException(
                     "O estacionamento deve possuir pelo menos uma vaga."
             );
         }
@@ -34,19 +34,19 @@ public class Estacionamento {
         for (Vaga vaga : vagas) {
 
             if (vaga == null) {
-                throw new IllegalArgumentException(
+                throw new EstacionamentoInvalidoException(
                         "Não é permitido cadastrar uma vaga nula."
                 );
             }
 
             if (!codigos.add(vaga.getCodigo())) {
-                throw new IllegalArgumentException(
+                throw new EstacionamentoInvalidoException(
                         "Código de vaga duplicado: " + vaga.getCodigo()
                 );
             }
 
             if (vaga.getStatus() != StatusVaga.LIVRE) {
-                throw new IllegalArgumentException(
+                throw new EstacionamentoInvalidoException(
                         "A vaga " + vaga.getCodigo()
                                 + " deve estar livre no cadastro."
                 );
@@ -60,7 +60,10 @@ public class Estacionamento {
     }
 
     // RN02 - Registrar entrada de veículo
-    public Ticket registrarEntrada(Veiculo veiculo, String codigoVaga) {
+    public Ticket registrarEntrada(
+            Veiculo veiculo,
+            String codigoVaga
+    ) {
 
         if (veiculo == null) {
             throw new IllegalArgumentException(
@@ -74,7 +77,7 @@ public class Estacionamento {
             );
         }
 
-        // Verifica se a placa já está estacionada
+        // Impede que a mesma placa ocupe duas vagas
         for (Vaga vaga : vagas) {
 
             if (vaga.getStatus() == StatusVaga.OCUPADA
@@ -82,18 +85,17 @@ public class Estacionamento {
                     && vaga.getVeiculoAtual().getPlaca()
                     .equals(veiculo.getPlaca())) {
 
-                throw new IllegalStateException(
-                        "O veículo de placa "
-                                + veiculo.getPlaca().valor()
-                                + " já está estacionado."
+                throw new VeiculoJaEstacionadoException(
+                        veiculo.getPlaca().valor()
                 );
             }
         }
 
-        // Localiza a vaga solicitada
+        // Localiza a vaga
         Vaga vagaEscolhida = null;
 
         for (Vaga vaga : vagas) {
+
             if (vaga.getCodigo().equals(codigoVaga)) {
                 vagaEscolhida = vaga;
                 break;
@@ -109,7 +111,7 @@ public class Estacionamento {
         // Ocupa a vaga
         vagaEscolhida.ocupar(veiculo);
 
-        // Gera um ticket
+        // Gera o ticket
         String idTicket = String.format(
                 "T%03d", proximoNumeroTicket
         );
@@ -126,7 +128,7 @@ public class Estacionamento {
         return ticket;
     }
 
-    // RN05 - Liberar a cancela somente com ticket pago
+    // RN05 - Libera cancela somente após pagamento
     public void liberarCancela(String idTicket) {
 
         if (idTicket == null || idTicket.isBlank()) {
@@ -139,6 +141,7 @@ public class Estacionamento {
         Ticket ticketEncontrado = null;
 
         for (Ticket ticket : tickets) {
+
             if (ticket.getId().equals(idTicket)) {
                 ticketEncontrado = ticket;
                 break;
@@ -151,24 +154,31 @@ public class Estacionamento {
             );
         }
 
-        // Verifica se o ticket está pago
+        // Verifica o pagamento
+        if (ticketEncontrado.getStatus() == StatusTicket.ABERTO) {
+            throw new TicketNaoPagoException(idTicket);
+        }
+
+        // Impede encerramento duplicado
         if (ticketEncontrado.getStatus() != StatusTicket.PAGO) {
-            throw new IllegalStateException(
-                    "A saída não foi autorizada. O ticket "
-                            + idTicket + " não está PAGO."
+            throw new TransicaoEstadoTicketException(
+                    idTicket,
+                    ticketEncontrado.getStatus(),
+                    "liberar a cancela para"
             );
         }
 
+        // Confere a ocupação correspondente
         Vaga vaga = ticketEncontrado.getVaga();
 
-        // Confere se o veículo continua na vaga correta
         if (vaga.getStatus() != StatusVaga.OCUPADA
                 || vaga.getVeiculoAtual() == null
                 || !vaga.getVeiculoAtual().getPlaca()
                 .equals(ticketEncontrado.getVeiculo().getPlaca())) {
 
             throw new IllegalStateException(
-                    "A ocupação da vaga não corresponde ao ticket."
+                    "A ocupação da vaga não corresponde ao ticket "
+                            + idTicket + "."
             );
         }
 
