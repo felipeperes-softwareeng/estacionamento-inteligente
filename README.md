@@ -35,6 +35,7 @@ Durante o desenvolvimento deste sistema, foram estabelecidas regras de negócio 
 
 ## 🛠️ Tecnologias Utilizadas
 * **Linguagem:** Java
+* **Versão:** JDK25
 * **Conceitos:** Programação Orientada a Objetos (POO), Estruturas de Dados, Tratamento de Exceções
 * **Controle de Versão:** Git e GitHub
 
