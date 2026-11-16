@@ -13,12 +13,12 @@
 
 ## 1. Integrantes do grupo
 
-- Felipe Peres
-- [Nome do integrante 2]
-- [Nome do integrante 3]
-- [Nome do integrante 4]
-- [Nome do integrante 5]
-- [Nome do integrante 6]
+- Felipe Peres d'Oliveira - RA: 2610386
+- Danielle Ribeiro Castilho - RA: 2642587
+- Eduardo Necchio -	RA: 2627935
+- Kauan Alexandre Gomes da Silva - RA: 2627796
+- Karina Evangelista Ferreira de Souza - RA: 2639753
+- Naiara Alves Dourado - RA: 2638121
 
 ## 2. Sobre o projeto
 
