@@ -37,7 +37,6 @@ public final class MenuConsole {
 
     public void executar() {
         saida.println("=== ESTACIONAMENTO INTELIGENTE ===");
-        saida.println("Sistema educacional em Java 21 | dados em memória");
         boolean ativo = true;
         while (ativo) {
             try {
@@ -92,11 +91,11 @@ public final class MenuConsole {
         saida.println("4 - Liberar cancela / registrar saída");
         saida.println("5 - Bloquear ou desbloquear vaga");
         saida.println("6 - Gerenciar mensalistas");
-        saida.println("7 - Listar vagas (Comparable ou Comparator)");
+        saida.println("7 - Listar vagas");
         saida.println("8 - Listar tickets");
-        saida.println("9 - Relatórios gerenciais (Streams)");
-        saida.println("10 - Trocar política de tarifa (Strategy)");
-        saida.println("11 - Listar cobranças (List<Cobravel>)");
+        saida.println("9 - Relatórios gerenciais");
+        saida.println("10 - Trocar política de tarifa");
+        saida.println("11 - Listar cobranças");
         saida.println("12 - Voltar à seleção de estacionamentos");
         saida.println("0 - Sair da unidade / voltar à seleção");
     }
