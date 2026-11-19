@@ -26,7 +26,7 @@
 
 ## 2. Apresentação do projeto
 
-O **Estacionamento Inteligente** é uma aplicação de terminal desenvolvida em Java 21 para administrar unidades de estacionamento, vagas, veículos, tickets de entrada e saída, pagamentos, mensalistas e recargas de veículos elétricos.
+O **Estacionamento Inteligente** é uma aplicação de terminal desenvolvida em Java 25 para administrar unidades de estacionamento, vagas, veículos, tickets de entrada e saída, pagamentos, mensalistas e recargas de veículos elétricos.
 
 O sistema aplica regras de negócio diretamente nas classes do domínio, evitando, por exemplo, a ocupação de uma vaga incompatível, a entrada simultânea da mesma placa em duas vagas, o pagamento duplicado de um ticket e a liberação da cancela antes da confirmação do pagamento.
 
