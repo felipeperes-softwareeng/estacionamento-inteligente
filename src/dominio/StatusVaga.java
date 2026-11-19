@@ -1,5 +1,2 @@
 package dominio;
-
-public enum StatusVaga {
-    LIVRE, OCUPADA, BLOQUEADA
-}
+public enum StatusVaga { LIVRE, OCUPADA, BLOQUEADA }

@@ -1,12 +1,6 @@
 package dominio;
-
-/**
- * Contrato para objetos que representam uma cobrança do estacionamento.
- * O valor cobrado e o valor efetivamente recebido são conceitos diferentes.
- */
+/** R05: contrato comum para cobranças de permanência e mensalidade. */
 public interface Cobravel {
-
     double getValorCobrado();
-
     String getDescricaoCobranca();
 }

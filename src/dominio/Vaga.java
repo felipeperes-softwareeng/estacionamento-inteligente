@@ -1,108 +1,48 @@
-
 package dominio;
-
+/** R04/R11 - Hierarquia de vagas; comportamento abstrato usado em método concreto. */
 public abstract class Vaga implements Comparable<Vaga> {
-
     private final String codigo;
     private StatusVaga status;
     private Veiculo veiculoAtual;
 
-    // Construtor
     protected Vaga(String codigo) {
         if (codigo == null || codigo.isBlank()) {
-            throw new IllegalArgumentException(
-                    "Código da vaga é obrigatório."
-            );
+            throw new IllegalArgumentException("Código da vaga é obrigatório.");
         }
-
-        this.codigo = codigo;
+        this.codigo = codigo.trim();
         this.status = StatusVaga.LIVRE;
-        this.veiculoAtual = null;
     }
-
-    // R04 - Cada tipo de vaga define sua compatibilidade
     public abstract boolean aceita(Veiculo veiculo);
 
-    // RN01 e RN02 - Ocupação controlada pelo domínio
+    // RN01/RN02 - A implementação concreta decide o tipo permitido.
     void ocupar(Veiculo veiculo) {
-
-        if (veiculo == null) {
-            throw new IllegalArgumentException(
-                    "O veículo não pode ser nulo."
-            );
-        }
-
-        if (this.status == StatusVaga.BLOQUEADA) {
-            throw new VagaBloqueadaException(codigo);
-        }
-
-        if (this.status == StatusVaga.OCUPADA) {
-            throw new VagaOcupadaException(codigo);
-        }
-
-        if (!this.aceita(veiculo)) {
-            throw new VagaIncompativelException(codigo);
-        }
-
-        this.veiculoAtual = veiculo;
-        this.status = StatusVaga.OCUPADA;
+        if (veiculo == null) throw new IllegalArgumentException("O veículo é obrigatório.");
+        if (status == StatusVaga.BLOQUEADA) throw new VagaBloqueadaException(codigo);
+        if (status == StatusVaga.OCUPADA) throw new VagaOcupadaException(codigo);
+        if (!aceita(veiculo)) throw new VagaIncompativelException(codigo);
+        veiculoAtual = veiculo;
+        status = StatusVaga.OCUPADA;
     }
-
-    // RN05 - Liberação coordenada pelo estacionamento
     void liberar() {
-
-        if (this.status != StatusVaga.OCUPADA) {
-            throw new IllegalStateException(
-                    "A vaga " + codigo + " não está ocupada."
-            );
+        if (status != StatusVaga.OCUPADA) {
+            throw new IllegalStateException("A vaga " + codigo + " não está ocupada.");
         }
-
-        this.veiculoAtual = null;
-        this.status = StatusVaga.LIVRE;
+        veiculoAtual = null;
+        status = StatusVaga.LIVRE;
     }
-
-    // RN07 - Bloqueio para manutenção
     public void bloquear() {
-
-        if (this.status == StatusVaga.OCUPADA) {
-            throw new VagaOcupadaException(codigo);
-        }
-
-        if (this.status == StatusVaga.BLOQUEADA) {
-            throw new VagaBloqueadaException(codigo);
-        }
-
-        this.status = StatusVaga.BLOQUEADA;
+        if (status == StatusVaga.OCUPADA) throw new VagaOcupadaException(codigo);
+        if (status == StatusVaga.BLOQUEADA) throw new VagaBloqueadaException(codigo);
+        status = StatusVaga.BLOQUEADA;
     }
-
-    // RN07 - Desbloqueio da vaga
     public void desbloquear() {
-
-        if (this.status != StatusVaga.BLOQUEADA) {
-            throw new IllegalStateException(
-                    "A vaga " + codigo + " não está bloqueada."
-            );
+        if (status != StatusVaga.BLOQUEADA) {
+            throw new IllegalStateException("A vaga " + codigo + " não está bloqueada.");
         }
-
-        this.status = StatusVaga.LIVRE;
+        status = StatusVaga.LIVRE;
     }
-
-    // R11 - Ordenação natural pelo código
-    @Override
-    public int compareTo(Vaga outra) {
-        return this.codigo.compareTo(outra.codigo);
-    }
-
-    // Métodos de consulta
-    public String getCodigo() {
-        return codigo;
-    }
-
-    public StatusVaga getStatus() {
-        return status;
-    }
-
-    public Veiculo getVeiculoAtual() {
-        return veiculoAtual;
-    }
+    @Override public int compareTo(Vaga outra) { return codigo.compareTo(outra.codigo); }
+    public String getCodigo() { return codigo; }
+    public StatusVaga getStatus() { return status; }
+    public Veiculo getVeiculoAtual() { return veiculoAtual; }
 }

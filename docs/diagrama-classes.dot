@@ -1,0 +1,68 @@
+digraph Modelo {
+ graph [fontname="Arial",fontsize=18,label="Estacionamento Inteligente — diagrama de classes (Java 21)",labelloc=t,
+        rankdir=TB,ranksep=1.0,nodesep=0.45,pad=0.45,splines=polyline,bgcolor="#F7F9FC",compound=true];
+ node [shape=record,fontname="Arial",fontsize=11,style="rounded,filled",fillcolor="#FFFFFF",color="#678198",penwidth=1.5];
+ edge [color="#667E96",fontname="Arial",fontsize=10,arrowsize=0.8];
+
+ subgraph cluster_dom {
+  label="dominio";color="#A1D1DC";style="rounded,filled";fillcolor="#ECF7F9";
+  Vaga [label="{«abstract» Vaga|- codigo: String\l- status: StatusVaga\l- veiculoAtual: Veiculo\l|+ aceita(Veiculo): boolean «abstract»\l+ bloquear() / desbloquear()\l+ compareTo(Vaga): int\l~ ocupar(Veiculo) / liberar()\l}"];
+  VagaCarro [label="{VagaCarro|+ aceita(Veiculo)}"];
+  VagaMoto [label="{VagaMoto|+ aceita(Veiculo)}"];
+  VagaEletrica [label="{VagaCarroEletrico|- precoPorKwh: double\l|+ aceita(Veiculo)\l+ calcularCustoRecarga(double)\l}"];
+  VagaPcd [label="{VagaPcd|+ aceita(Veiculo)}"];
+  Veiculo [label="{Veiculo|- placa: Placa\l- tipo: TipoVeiculo\l|+ getPlaca() / getTipo()\l}"];
+  Placa [label="{«record» Placa|+ valor: String\l|validada no construtor\l}",fillcolor="#FFF3DA"];
+  TipoVeiculo [label="{«enum» TipoVeiculo|CARRO; MOTO; ELETRICO; PCD}",fillcolor="#FFF3DA"];
+  StatusTicket [label="{«enum» StatusTicket|ABERTO; PAGO; ENCERRADO}",fillcolor="#FFF3DA"];
+  StatusVaga [label="{«enum» StatusVaga|LIVRE; OCUPADA; BLOQUEADA}",fillcolor="#FFF3DA"];
+  Politica [label="{«interface» PoliticaDeTarifa|+ calcularValor(long): double\l+ getDescricao(): String\l}",fillcolor="#DFEBFA"];
+  Padrao [label="{TarifaPadrao|+ calcularValor(long): double}"];
+  Promocional [label="{TarifaPromocional|+ calcularValor(long): double}"];
+  Cobravel [label="{«interface» Cobravel|+ getValorCobrado(): double\l+ getDescricaoCobranca(): String\l}",fillcolor="#DFEBFA"];
+  Mensalista [label="{Mensalista|- nome: String\l- placa: Placa\l- emDia: boolean\l|+ temIsencao()\l+ registrarAtraso()\l+ regularizarPagamento(double)\l}"];
+  Ticket [label="{Ticket|- id: String\l- entrada: LocalDateTime\l- status: StatusTicket\l- valorPago: double\l|~ pagar(...) / encerrar()\l+ getValorPago()\l}"];
+  Estacionamento [label="{Estacionamento|- nome: String\l- politicaDeTarifa: PoliticaDeTarifa\l- vagas: List\l- tickets: List\l- mensalistas: List\l|+ registrarEntrada(...)\l+ calcularValorTicket(...)\l+ pagarTicket(...)\l+ liberarCancela(...)\l+ alterarPoliticaDeTarifa(...)\l}",fillcolor="#D6F0ED"];
+  Ocupacao [label="{ControleDeOcupacao|- placasPresentes: Set\l|~ registrarEntrada(Placa)\l~ registrarSaida(Placa)\l}"];
+ }
+ subgraph cluster_apl {
+  label="aplicacao";color="#C7D0E0";style="rounded,filled";fillcolor="#F1F3FA";
+  Cadastro [label="{CadastroEstacionamentos|- unidades: Map\l- selecionado: Estacionamento\l|+ cadastrar(...)\l+ selecionar(String)\l+ unidadeSelecionada()\l}"];
+  Operacoes [label="{OperacoesEstacionamento|+ entrada(...) / receberPagamento(...)\l+ bloquear(...) / liberarCancela(...)\l}"];
+  Relatorios [label="{RelatoriosGerenciais|+ ocupacaoPorTipo()\l+ receitaPorTipo()\l+ ticketsPorSituacao()\l+ listarVagasOrdenadas(boolean)\l}"];
+ }
+ subgraph cluster_app {
+  label="app";color="#E6CF9D";style="rounded,filled";fillcolor="#FFF8EA";
+  Main [label="{Main|+ main(String[]): void}"];
+  Menu [label="{MenuConsole|- entrada: Scanner\l|+ executar(): void}"];
+ }
+ VagaCarro -> Vaga [arrowhead=empty,label="extends"];
+ VagaMoto -> Vaga [arrowhead=empty,label="extends"];
+ VagaEletrica -> Vaga [arrowhead=empty,label="extends"];
+ VagaPcd -> Vaga [arrowhead=empty,label="extends"];
+ Padrao -> Politica [arrowhead=empty,style=dashed,label="implements"];
+ Promocional -> Politica [arrowhead=empty,style=dashed,label="implements"];
+ Ticket -> Cobravel [arrowhead=empty,style=dashed,label="implements"];
+ Mensalista -> Cobravel [arrowhead=empty,style=dashed,label="implements"];
+ Vaga -> Veiculo [arrowhead=vee,label="0..1"];
+ Vaga -> StatusVaga [arrowhead=vee];
+ Veiculo -> Placa [arrowhead=vee];
+ Veiculo -> TipoVeiculo [arrowhead=vee];
+ Mensalista -> Placa [arrowhead=vee];
+ Ticket -> Veiculo [arrowhead=vee];
+ Ticket -> Vaga [arrowhead=vee];
+ Ticket -> StatusTicket [arrowhead=vee];
+ Estacionamento -> Vaga [arrowtail=diamond,dir=both,arrowhead=vee,label="1..*"];
+ Estacionamento -> Ticket [arrowtail=diamond,dir=both,arrowhead=vee,label="0..*"];
+ Estacionamento -> Mensalista [arrowtail=diamond,dir=both,arrowhead=vee,label="0..*"];
+ Estacionamento -> Politica [arrowtail=diamond,dir=both,arrowhead=vee,label="1"];
+ Estacionamento -> Ocupacao [arrowtail=odiamond,dir=both,arrowhead=vee];
+ Cadastro -> Estacionamento [arrowtail=diamond,dir=both,arrowhead=vee,label="1..*"];
+ Cadastro -> Ocupacao [arrowtail=diamond,dir=both,arrowhead=vee,label="1 compartilhado"];
+ Operacoes -> Cadastro [arrowhead=vee];
+ Relatorios -> Cadastro [arrowhead=vee];
+ Main -> Cadastro [arrowhead=vee];
+ Main -> Menu [arrowhead=vee];
+ Menu -> Operacoes [arrowhead=vee];
+ Menu -> Relatorios [arrowhead=vee];
+}

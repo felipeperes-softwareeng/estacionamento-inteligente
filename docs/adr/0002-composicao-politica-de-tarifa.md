@@ -1,14 +1,18 @@
-# ADR-0002: Utilizar Composição e Interface para a Política de Tarifa (Strategy)
+# ADR-0002 — Composição via interface para política de tarifa
 
-Status: Aceito · Data: 16/11/2026
+**Status:** Aceito  
+**Data:** 17/11/2026
 
 ## Contexto
-O cálculo de tarifa do estacionamento exige tolerância de 15 minutos, cobrança por hora/fração e teto de diária, além de poder variar conforme a estratégia comercial do pátio. Colocar a fórmula fixa dentro da classe `Estacionamento` ou `Ticket` acoplaria a regra de cobrança e dificultaria mudanças.
+
+O estacionamento deve calcular permanência usando tarifas diferentes sem misturar fórmulas ao fluxo de entrada e saída. O desafio C exige troca de estratégia em execução.
 
 ## Decisão
-Criamos a interface `PoliticaDeTarifa` e a injetamos por composição no construtor de `Estacionamento` (requisito R06), aplicando o padrão Strategy (Desafio C) para permitir a troca da regra de cálculo em tempo de execução.
+
+`Estacionamento` recebe `PoliticaDeTarifa` no construtor, mantém uma referência à interface e delega os cálculos ao método `calcularValor(long)`. As implementações concretas são `TarifaPadrao` e `TarifaPromocional`. `alterarPoliticaDeTarifa()` permite substituir a política enquanto o programa roda.
 
 ## Consequências
-+ Baixo acoplamento: o `Estacionamento` depende de uma abstração (interface) e não da implementação concreta.
-+ Permite trocar ou criar novas regras de tarifação (`TarifaPadrao`, `TarifaPromocional`) sem alterar o código de `Estacionamento`.
-- Aumenta ligeiramente o número de classes no pacote de domínio.
+
+- **Positiva:** polimorfismo e injeção de dependência sem `if/else` para decidir fórmulas.
+- **Positiva:** a mesma regra pode ser testada isoladamente e usada por várias unidades.
+- **Limitação:** alterar a política afeta as próximas consultas/pagamentos de tickets ainda abertos; a política efetiva fica registrada no ticket após pagamento.

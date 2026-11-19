@@ -1,12 +1,6 @@
 package dominio;
-
-/**
- * Contrato para calcular o valor da permanência de um veículo.
- * A implementação pode ser trocada sem alterar quem utiliza a interface.
- */
+/** R06/Strategy: contrato para tarifa de permanência. */
 public interface PoliticaDeTarifa {
-
     double calcularValor(long minutos);
-
     String getDescricao();
 }

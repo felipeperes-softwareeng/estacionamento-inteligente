@@ -1,14 +1,18 @@
-# ADR-0001: Modelar Vaga como classe abstrata, e não como interface
+# ADR-0001 — Vaga como classe abstrata
 
-Status: Aceito · Data: 16/11/2026
+**Status:** Aceito  
+**Data:** 16/11/2026
 
 ## Contexto
-O estacionamento possui quatro tipos de vagas (Carro, Moto, Elétrico e PcD). Todas compartilham estado (código identificador, status de ocupação/bloqueio e veículo estacionado) e regras comuns (não permitir dois veículos na mesma vaga e impedir bloqueio de vaga ocupada), mas cada tipo possui sua própria regra de compatibilidade de veículo e cobrança adicional (como recarga em kWh na vaga elétrica).
+
+Todas as vagas compartilham código, estado e regras de ocupação, mas cada categoria aceita tipos diferentes de veículo. Repetir validações em várias classes aumentaria o risco de esquecer uma regra.
 
 ## Decisão
-Modelamos `Vaga` como uma classe `abstract` que guarda os atributos e métodos concretos de ocupação/manutenção (`ocupar()`, `liberar()`, `bloquear()`), declarando o método abstrato `aceita(Veiculo)` para que cada subclasse concreta (`VagaCarro`, `VagaMoto`, `VagaEletrica`, `VagaPcd`) defina sua regra de compatibilidade.
+
+`Vaga` será uma **classe abstrata**, com campos privados e métodos concretos `ocupar()`, `liberar()`, `bloquear()` e `desbloquear()`. O método abstrato `aceita(Veiculo)` será especializado por `VagaCarro`, `VagaMoto`, `VagaCarroEletrico` e `VagaPcd`; `ocupar()` chama esse método.
 
 ## Consequências
-+ Evita duplicação de código das regras de ocupação e bloqueio por manutenção (RN02 e RN07).
-+ Garante o cumprimento do requisito R04 com polimorfismo real (Template Method), eliminando `if/else` de tipos de vaga.
-- Como Java possui herança simples, as subclasses de `Vaga` não podem herdar de outra superclasse.
+
+- **Positiva:** regra de ocupação fica centralizada e protege as invariantes RN01, RN02 e RN07.
+- **Positiva:** o código demonstra despacho dinâmico e hierarquia polimórfica (R04).
+- **Limitação:** novas categorias de vaga exigem nova subclasse; o projeto aceita essa extensão explícita.
