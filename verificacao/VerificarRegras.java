@@ -54,7 +54,7 @@ public final class VerificarRegras {
         Estacionamento unidade = novaUnidade(bloqueada);
         bloqueada.bloquear();
         erro(VagaBloqueadaException.class, () -> unidade.registrarEntrada(
-                new Veiculo(new Placa("AAA1234"), TipoVeiculo.CARRO), "C010"),
+                        new Veiculo(new Placa("AAA1234"), TipoVeiculo.CARRO), "C010"),
                 "vaga bloqueada recusa entrada");
         erro(EstacionamentoInvalidoException.class,
                 () -> novaUnidade(bloqueada), "vaga bloqueada não nasce cadastrada em outra unidade");
@@ -142,7 +142,7 @@ public final class VerificarRegras {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         try (PrintStream saida = new PrintStream(bytes, true, StandardCharsets.UTF_8)) {
             new MenuConsole(cadastro,
-                new ByteArrayInputStream(comandos.getBytes(StandardCharsets.UTF_8)), saida).executar();
+                    new ByteArrayInputStream(comandos.getBytes(StandardCharsets.UTF_8)), saida).executar();
         }
         String texto = bytes.toString(StandardCharsets.UTF_8);
         verdadeiro(texto.contains("OPERAÇÃO RECUSADA"), "menu captura exceção do domínio");
