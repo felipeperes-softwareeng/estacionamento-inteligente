@@ -12,10 +12,17 @@ public class Estacionamento {
     private final List<Vaga> vagas;
     private final List<Ticket> tickets;
 
+    // R06 - Composição por interface
+    private PoliticaDeTarifa politicaDeTarifa;
+
     private int proximoNumeroTicket;
 
     // Construtor
-    public Estacionamento(String nome, List<Vaga> vagas) {
+    public Estacionamento(
+            String nome,
+            List<Vaga> vagas,
+            PoliticaDeTarifa politicaDeTarifa
+    ) {
 
         if (nome == null || nome.isBlank()) {
             throw new EstacionamentoInvalidoException(
@@ -26,6 +33,12 @@ public class Estacionamento {
         if (vagas == null || vagas.isEmpty()) {
             throw new EstacionamentoInvalidoException(
                     "O estacionamento deve possuir pelo menos uma vaga."
+            );
+        }
+
+        if (politicaDeTarifa == null) {
+            throw new EstacionamentoInvalidoException(
+                    "A política de tarifa é obrigatória."
             );
         }
 
@@ -41,7 +54,8 @@ public class Estacionamento {
 
             if (!codigos.add(vaga.getCodigo())) {
                 throw new EstacionamentoInvalidoException(
-                        "Código de vaga duplicado: " + vaga.getCodigo()
+                        "Código de vaga duplicado: "
+                                + vaga.getCodigo()
                 );
             }
 
@@ -56,7 +70,45 @@ public class Estacionamento {
         this.nome = nome;
         this.vagas = new ArrayList<>(vagas);
         this.tickets = new ArrayList<>();
+
+        // A política é recebida por meio do construtor
+        this.politicaDeTarifa = politicaDeTarifa;
+
         this.proximoNumeroTicket = 1;
+    }
+
+    // RN03 - Calcula a tarifa usando a política ativa
+    public double calcularTarifa(long minutos) {
+
+        double valor = politicaDeTarifa.calcularValor(minutos);
+
+        // Protege o estacionamento contra uma política inválida
+        if (!Double.isFinite(valor) || valor < 0) {
+            throw new IllegalStateException(
+                    "A política de tarifa retornou um valor inválido."
+            );
+        }
+
+        return valor;
+    }
+
+    // Desafio C - Permite trocar a estratégia em execução
+    public void alterarPoliticaDeTarifa(
+            PoliticaDeTarifa novaPolitica
+    ) {
+
+        if (novaPolitica == null) {
+            throw new EstacionamentoInvalidoException(
+                    "A nova política de tarifa não pode ser nula."
+            );
+        }
+
+        this.politicaDeTarifa = novaPolitica;
+    }
+
+    // Consulta qual política de tarifa está ativa
+    public String getDescricaoPoliticaDeTarifa() {
+        return politicaDeTarifa.getDescricao();
     }
 
     // RN02 - Registrar entrada de veículo
