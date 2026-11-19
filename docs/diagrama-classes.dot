@@ -1,5 +1,5 @@
 digraph Modelo {
- graph [fontname="Arial",fontsize=18,label="Estacionamento Inteligente — diagrama de classes (Java 21)",labelloc=t,
+ graph [fontname="Arial",fontsize=18,label="Estacionamento Inteligente — diagrama de classes (Java 25)",labelloc=t,
         rankdir=TB,ranksep=1.0,nodesep=0.45,pad=0.45,splines=polyline,bgcolor="#F7F9FC",compound=true];
  node [shape=record,fontname="Arial",fontsize=11,style="rounded,filled",fillcolor="#FFFFFF",color="#678198",penwidth=1.5];
  edge [color="#667E96",fontname="Arial",fontsize=10,arrowsize=0.8];
