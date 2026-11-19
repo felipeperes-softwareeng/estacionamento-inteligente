@@ -1,213 +1,289 @@
-''# Estacionamento Inteligente
-### Sistema de Gerenciamento de Estacionamentos
+# Estacionamento Inteligente
+
+### Sistema de Gerenciamento de Estacionamentos — Projeto AV2
 
 **UniAnchieta — Centro Universitário Padre Anchieta**
 
 | Informação | Detalhes |
 |---|---|
 | Disciplina | Programação Orientada a Objetos em Java |
-| Projeto | Avaliação 2 (AV2) — Startup OO |
+| Avaliação | AV2 — Startup OO |
 | Professor | Jesse Guimarães |
-| Linguagem | Java 21 |
+| Linguagem | Java 25 (JDK 25) |
 | Semestre | 2º semestre de 2026 |
+| Repositório | [felipeperes-softwareeng/estacionamento-inteligente](https://github.com/felipeperes-softwareeng/estacionamento-inteligente) |
 
 ## 1. Integrantes do grupo
 
-- Felipe Peres d'Oliveira - RA: 2610386
-- Danielle Ribeiro Castilho - RA: 2642587
-- Eduardo Necchio -	RA: 2627935
-- Kauan Alexandre Gomes da Silva - RA: 2627796
-- Karina Evangelista Ferreira de Souza - RA: 2639753
-- Naiara Alves Dourado - RA: 2638121
+| Integrante | RA |
+|---|---|
+| Felipe Peres d'Oliveira | 2610386 |
+| Danielle Ribeiro Castilho | 2642587 |
+| Eduardo Necchio | 2627935 |
+| Kauan Alexandre Gomes da Silva | 2627796 |
+| Karina Evangelista Ferreira de Souza | 2639753 |
+| Naiara Alves Dourado | 2638121 |
 
-## 2. Sobre o projeto
+## 2. Apresentação do projeto
 
-O **Estacionamento Inteligente** é um sistema desenvolvido em Java com o objetivo de gerenciar operações de estacionamentos, permitindo controlar vagas, veículos, tickets, tarifas, mensalistas e consumo de energia para veículos elétricos.
+O **Estacionamento Inteligente** é uma aplicação de terminal desenvolvida em Java 21 para administrar unidades de estacionamento, vagas, veículos, tickets de entrada e saída, pagamentos, mensalistas e recargas de veículos elétricos.
 
-A aplicação permite cadastrar diferentes estacionamentos, cada um com seu próprio nome e quantidade de vagas disponíveis por categoria.
+O sistema aplica regras de negócio diretamente nas classes do domínio, evitando, por exemplo, a ocupação de uma vaga incompatível, a entrada simultânea da mesma placa em duas vagas, o pagamento duplicado de um ticket e a liberação da cancela antes da confirmação do pagamento.
 
-Antes de acessar o menu principal, o usuário deve selecionar um estacionamento previamente cadastrado. Todas as operações realizadas a partir desse momento ficam vinculadas ao estacionamento selecionado.
+A aplicação suporta o cadastro de **múltiplas unidades**, com seleção do estacionamento que será operado. As unidades cadastradas no mesmo `CadastroEstacionamentos` compartilham o controle de placas presentes.
 
-O projeto utiliza os conceitos de Programação Orientada a Objetos para representar as entidades do negócio, organizar suas responsabilidades e garantir que as regras sejam respeitadas durante a execução.
+**Escopo:** aplicação de console com dados mantidos **em memória**. Não utiliza banco de dados, interface gráfica ou integração com serviços reais de pagamento e cancelas. Ao encerrar a execução, as alterações realizadas pelo usuário não são persistidas.
 
-## 3. Objetivos
+## 3. Funcionalidades implementadas
 
-- Aplicar os conceitos fundamentais de Programação Orientada a Objetos em Java.
-- Desenvolver um modelo de domínio baseado em um negócio real.
-- Utilizar classes abstratas, interfaces, herança e composição.
-- Garantir a integridade dos dados por meio de invariantes.
-- Implementar ciclos de vida utilizando enums.
-- Aplicar exceções personalizadas para situações específicas do negócio.
-- Utilizar polimorfismo para permitir diferentes comportamentos.
-- Implementar cálculos e relatórios utilizando recursos da linguagem Java.
+- Cadastro e seleção de estacionamentos com quantidades configuráveis de vagas para **carros, motos, elétricos e PcD**.
+- Registro de entrada, geração de ticket e identificação do veículo pela placa.
+- Verificação de compatibilidade entre veículo e vaga e prevenção de ocupação duplicada.
+- Validação de placas brasileiras nos padrões **ABC1234** e **ABC1D23**.
+- Cálculo de tarifa com **15 minutos de tolerância**, cobrança por hora ou fração e teto por 24 horas.
+- Alteração da política de cálculo entre **tarifa padrão** e **tarifa promocional**.
+- Cobrança adicional de energia elétrica de acordo com o consumo em **kWh**.
+- Cadastro, consulta, registro de atraso e regularização de mensalistas; isenção de permanência para mensalistas em dia.
+- Pagamento exato do valor devido, sem cálculo de troco, e controle dos estados `ABERTO → PAGO → ENCERRADO`.
+- Liberação de cancela somente após pagamento, com desocupação da vaga e preservação do histórico de tickets.
+- Bloqueio e desbloqueio de vagas livres para manutenção.
+- Listagem de vagas por código ou por situação e listagem de tickets.
+- Relatórios gerenciais de **ocupação**, **receita de tickets** e **tickets por situação**.
+- Listagem polimórfica de cobranças com a interface `Cobravel`.
 
 ## 4. Regras de negócio
 
-O sistema deve respeitar as seguintes regras:
+As regras **RN01–RN06** correspondem ao domínio D3 — Mobilidade do enunciado. **RN07–RN09** são regras adicionais documentadas pelo grupo.
 
-**RN01 — Compatibilidade entre veículos e vagas**
-
-Existem vagas específicas para carros, motos, veículos elétricos e pessoas com deficiência (PcD). Um veículo somente poderá ocupar uma vaga compatível com sua categoria.
-
-**RN02 — Ocupação exclusiva**
-
-Uma vaga nunca poderá possuir dois veículos simultaneamente. Da mesma forma, um veículo não poderá ocupar duas vagas ao mesmo tempo.
-
-**RN03 — Cálculo de tarifas**
-
-O estacionamento oferece 15 minutos de tolerância. Após esse período, a cobrança é realizada por hora ou fração, respeitando um valor máximo de diária. Mensalistas com mensalidade em dia são isentos da tarifa de estacionamento.
-
-**RN04 — Cobrança de recarga elétrica**
-
-Veículos elétricos estacionados em vagas com recarga possuem uma cobrança adicional, calculada de acordo com a quantidade de energia consumida em kWh.
-
-**RN05 — Ciclo de vida do ticket**
-
-O ticket possui três estados possíveis:
-
-`ABERTO → PAGO → ENCERRADO`
-
-A saída do veículo somente poderá ser liberada pela cancela quando o ticket estiver no estado `PAGO`.
-
-**RN06 — Validação de placas**
-
-As placas dos veículos devem seguir um dos padrões brasileiros aceitos:
-
-- Mercosul: ABC1D23.
-- Modelo antigo: ABC1234.
-
-**RN07 — Bloqueio de vagas para manutenção**
-
-Vagas bloqueadas para manutenção não poderão receber veículos. Além disso, uma vaga ocupada não poderá ser bloqueada.
-
-**RN08 — Situação da mensalidade**
-
-A isenção da tarifa depende da situação financeira do mensalista. Caso a mensalidade esteja atrasada, o cliente deverá pagar a tarifa normal do estacionamento.
-
-**RN09 — Gerenciamento de estacionamentos**
-
-Cada estacionamento deve ser cadastrado com nome e quantidade de vagas por tipo. Antes de acessar o menu principal, o usuário deverá selecionar um estacionamento cadastrado. Todas as operações devem ocorrer dentro do estacionamento selecionado.
-
-## 5. Requisitos técnicos da AV2
-
-O desenvolvimento deve contemplar os 12 requisitos técnicos obrigatórios definidos no enunciado da avaliação.
-
-| Código | Requisito | Descrição |
+| Regra | Descrição | Implementação principal |
 |---|---|---|
-| R01 | Linguagem ubíqua | Glossário com pelo menos 8 termos do negócio, utilizando os mesmos nomes no código. |
-| R02 | Regras rastreadas | Pelo menos 8 regras de negócio relacionadas às classes e métodos responsáveis por garanti-las. |
-| R03 | Modelo rico | Pelo menos 8 tipos próprios além da classe Main, cada um em seu arquivo Java. |
-| R04 | Classe abstrata | Uma classe abstrata com método abstrato e concreto, além de pelo menos duas subclasses. |
-| R05 | Interfaces | Pelo menos duas interfaces próprias, com uma delas implementada por classes sem relação de herança entre si e utilizada polimorficamente. |
-| R06 | Composição | Pelo menos uma relação de composição que dependa de uma interface recebida pelo construtor. |
-| R07 | Ciclo de vida | Enum de estados com transições controladas por métodos com intenção. |
-| R08 | Objeto de valor | Pelo menos um record ou classe final imutável, validado em seu próprio construtor. |
-| R09 | Invariantes | Objetos sempre válidos, ausência de setters públicos para estados críticos e proteção das coleções internas com List.copyOf. |
-| R10 | Exceções de domínio | Pelo menos duas exceções próprias, lançadas pelo modelo e tratadas com try-catch no menu. |
-| R11 | Ordenação | Implementação de Comparable e pelo menos um Comparator, utilizados em listagens. |
-| R12 | Aplicação | Menu com Scanner, pelo menos seis opções, dados de exemplo carregados na inicialização e Main responsável apenas pela orquestração. |
+| RN01 | Somente veículos compatíveis podem ocupar cada tipo de vaga. | `Vaga.ocupar()`, `Vaga.aceita()` e subclasses |
+| RN02 | Uma vaga não recebe dois veículos; a mesma placa não ocupa duas vagas ou unidades simultaneamente. | `Vaga.ocupar()`, `ControleDeOcupacao.registrarEntrada()`, `Estacionamento.registrarEntrada()` |
+| RN03 | Até 15 min gratuitos; depois, cobrança por hora/fração e teto de diária; mensalista em dia tem isenção de permanência. | `TarifaPadrao.calcularValor()`, `Estacionamento.calcularCobranca()` |
+| RN04 | Recarga elétrica cobrada separadamente por kWh consumido. | `VagaCarroEletrico.calcularCustoRecarga()` |
+| RN05 | Ticket segue `ABERTO → PAGO → ENCERRADO`; cancela exige ticket pago. | `Ticket.pagar()`, `Ticket.encerrar()`, `Estacionamento.liberarCancela()` |
+| RN06 | Apenas placas nos formatos brasileiro antigo e Mercosul são aceitas. | `Placa` (`record`) |
+| RN07* | Vaga bloqueada não recebe veículo; vaga ocupada não pode ser bloqueada. | `Vaga.bloquear()`, `Vaga.desbloquear()`, `Vaga.ocupar()` |
+| RN08* | Mensalista em atraso perde a isenção; regularização a restabelece. | `Mensalista`, `Estacionamento.calcularCobranca()` |
+| RN09* | Unidade deve ser cadastrada e selecionada antes de suas operações. | `CadastroEstacionamentos`, `MenuConsole` |
+
+A matriz detalhada de rastreabilidade, incluindo métodos e exceções associadas, está em [`docs/regras.md`](docs/regras.md).
+
+## 5. Requisitos técnicos da AV2 — R01 a R12
+
+| Código | Requisito | Evidência no projeto |
+|---|---|---|
+| R01 | Linguagem ubíqua | [`docs/glossario.md`](docs/glossario.md), com termos ligados às classes e aos métodos do negócio. |
+| R02 | Regras rastreadas | [`docs/regras.md`](docs/regras.md), com nove regras RN01–RN09. |
+| R03 | Modelo rico | Tipos próprios organizados em arquivos individuais em `src/dominio/` e `src/aplicacao/`. |
+| R04 | Classe abstrata | `Vaga` (abstrata), método abstrato `aceita()`, método concreto `ocupar()` e quatro subclasses. |
+| R05 | Interfaces | `PoliticaDeTarifa` e `Cobravel`; `Ticket` e `Mensalista` usados em `List<Cobravel>`. |
+| R06 | Composição via interface | `Estacionamento` recebe `PoliticaDeTarifa` pelo construtor. |
+| R07 | Ciclo de vida | `StatusTicket`, `Ticket.pagar()` e `Ticket.encerrar()`, com validação das transições. |
+| R08 | Objeto de valor | `Placa` é um `record` imutável com validação no construtor. |
+| R09 | Invariantes | Construtores validados, estado crítico sem setters públicos e listas retornadas com `List.copyOf()`. |
+| R10 | Exceções de domínio | `PlacaInvalidaException`, `VagaOcupadaException`, `TicketNaoPagoException` e outras, tratadas em `MenuConsole.executar()`. |
+| R11 | Ordenação | `Vaga implements Comparable<Vaga>` e `Comparator` em `RelatoriosGerenciais.listarVagasOrdenadas()`. |
+| R12 | Aplicação de console | `Main`, `MenuConsole` com `Scanner`, mais de seis opções e dados iniciais de demonstração. |
 
 ## 6. Desafios escolhidos — Trilha Vá Além
 
-O grupo escolheu três desafios da Trilha Vá Além, conforme as possibilidades apresentadas no enunciado.
+Foram implementados **três desafios** entre os previstos no enunciado:
 
-### C — Padrão Strategy
+### Desafio C — Padrão Strategy
 
-Implementar o padrão Strategy para permitir que uma regra de cálculo seja substituída em tempo de execução por meio de uma interface.
+A interface `PoliticaDeTarifa` define o contrato de cálculo. `TarifaPadrao` e `TarifaPromocional` apresentam implementações diferentes, e `Estacionamento.alterarPoliticaDeTarifa()` permite trocá-las em execução. A opção **10** do menu demonstra essa mudança.
 
-No projeto, o objetivo é permitir diferentes estratégias de cálculo de tarifas, mantendo o sistema flexível e facilitando a inclusão de novas políticas de cobrança.
+**Arquivos:** `src/dominio/PoliticaDeTarifa.java`, `TarifaPadrao.java`, `TarifaPromocional.java`, `Estacionamento.java`.
 
-### D — Relatórios com Streams
+### Desafio D — Relatórios gerenciais com Streams
 
-Desenvolver pelo menos três relatórios gerenciais utilizando Streams, lambdas e recursos da API de Collections do Java.
+A classe `RelatoriosGerenciais` implementa três relatórios utilizando operações como `filter`, `map`, `sorted` e `Collectors.groupingBy`:
 
-Os relatórios devem utilizar:
+1. `ocupacaoPorTipo()` — número de vagas **atualmente ocupadas**, agrupadas por categoria.
+2. `receitaPorTipo()` — valores registrados em tickets **PAGO** ou **ENCERRADO**, por categoria. As mensalidades contratuais não integram esse relatório.
+3. `ticketsPorSituacao()` — quantidade de tickets em cada estado.
 
-- filter
-- map
-- sorted
-- Collectors.groupingBy
+**Arquivo:** `src/aplicacao/RelatoriosGerenciais.java`. Os relatórios estão na opção **9** do menu.
 
-O objetivo é facilitar a análise das operações realizadas nos estacionamentos.
+### Desafio F — Arquitetura em camadas
 
-### F — Arquitetura em camadas
+O código foi separado em três pacotes:
 
-Organizar o sistema em três camadas principais:
+- **`dominio`** — entidades, regras de negócio, interfaces, enums, objetos de valor e exceções.
+- **`aplicacao`** — coordenação de operações, cadastro de unidades e relatórios.
+- **`app`** — inicialização, leitura pelo `Scanner` e apresentação dos resultados no console.
 
-- **dominio:** contém as entidades, regras de negócio, interfaces, enums, objetos de valor e exceções.
-- **aplicacao:** concentra os serviços e a coordenação dos casos de uso.
-- **app:** responsável pela interação com o usuário, menus, entrada de dados e inicialização da aplicação.
+A camada `dominio` não utiliza `Scanner` nem realiza impressão direta no console.
 
-A camada de domínio não deve depender de Scanner nem realizar impressões diretamente no console.
+> **Testes automatizados:** o projeto também possui 41 verificações em Java puro, mas elas **não equivalem ao desafio A (JUnit 5)**, que exige testes com a biblioteca JUnit 5.
 
-## 7. Conceitos de POO aplicados
-
-O projeto utiliza os seguintes conceitos:
-
-- **Encapsulamento:** proteção dos atributos e controle de acesso aos estados dos objetos.
-- **Abstração:** representação dos conceitos essenciais do estacionamento por meio de classes abstratas e interfaces.
-- **Herança:** reutilização e especialização de comportamentos entre classes relacionadas.
-- **Polimorfismo:** utilização de diferentes implementações por meio de contratos comuns.
-- **Composição:** relacionamento entre objetos para organizar responsabilidades e comportamentos.
-- **Imutabilidade:** utilização de objetos de valor para representar informações que não devem ser modificadas após sua criação.
-- **Exceções de domínio:** representação de situações inválidas específicas das regras do negócio.
-
-## 8. Tecnologias e ferramentas
-
-- Java 21 (JDK 21).
-- Programação Orientada a Objetos.
-- IntelliJ IDEA.
-- Git e GitHub.
-- Java Collections Framework.
-- Java Streams API.
-
-## 9. Estrutura do projeto
-
-O projeto segue a proposta de arquitetura em camadas:
+## 7. Estrutura do repositório
 
 ```text
 estacionamento-inteligente/
-│
+├── src/
+│   ├── dominio/                 # Entidades, vagas, tickets, tarifas, interfaces e exceções
+│   ├── aplicacao/               # Cadastro de unidades, operações e relatórios
+│   └── app/                     # Main e MenuConsole
+├── verificacao/
+│   └── VerificarRegras.java     # 41 verificações automatizadas em Java puro
 ├── docs/
+│   ├── adr/
+│   │   ├── 0001-vaga-como-classe-abstrata.md
+│   │   ├── 0002-composicao-politica-de-tarifa.md
+│   │   └── 0003-controle-compartilhado-de-ocupacao.md
 │   ├── glossario.md
 │   ├── regras.md
-│   ├── diagrama-classes.png
-│   └── adr/
-│       ├── 0001-decisao.md
-│       └── 0002-decisao.md
-│
-├── src/
-│   ├── dominio/
-│   ├── aplicacao/
-│   └── app/
-│
-├── README.md
-└── estacionamento_inteligente.iml
+│   ├── verificacoes.md
+│   ├── diagrama-classes.md
+│   └── diagrama-classes.dot
+├── .gitignore
+├── estacionamento_inteligente.iml
+└── README.md
 ```
 
-*Os arquivos e diretórios devem refletir a estrutura efetivamente adotada na versão final do projeto.*
+O diagrama de classes está disponível em formato-fonte **Graphviz (`.dot`)** e em uma visão resumida em Markdown/Mermaid. Para gerar uma imagem PNG, com o Graphviz instalado, execute:
 
-## 10. Documentação de engenharia
+```bash
+dot -Tpng docs/diagrama-classes.dot -o docs/diagrama-classes.png
+```
 
-A documentação complementar do projeto deve conter:
+A imagem `.png` deve ser gerada e incluída na entrega final se for solicitada pelo professor.
 
-- **Glossário:** definição dos principais termos utilizados no negócio.
-- **Regras de negócio:** descrição das regras e matriz de rastreabilidade, relacionando cada regra à classe e ao método responsável por garanti-la.
-- **Diagrama UML:** representação das classes, atributos, métodos, interfaces, enums, records, heranças e composições.
-- **ADRs (Architecture Decision Records):** registros das principais decisões arquiteturais, incluindo contexto, decisão tomada e consequências.
+## 8. Como executar
 
-## 11. Execução do projeto
+### Requisitos
 
-**Requisitos:** JDK 21 instalado e configurado.
+- JDK **21** instalado.
+- IntelliJ IDEA **ou** terminal com os comandos `javac` e `java` disponíveis.
+- Não é necessário instalar Maven, Gradle, banco de dados ou bibliotecas externas.
 
-O projeto poderá ser executado por meio de uma IDE compatível com Java ou pelo terminal, após a compilação dos arquivos-fonte.
+### Pelo IntelliJ IDEA
 
-As instruções específicas de compilação e execução deverão ser atualizadas conforme a estrutura definitiva dos pacotes e arquivos do projeto.
+1. Abra a pasta raiz do repositório no IntelliJ.
+2. Configure o **Project SDK** como **Java 21**.
+3. Marque `src` como **Sources Root**, caso não esteja reconhecida.
+4. Marque `verificacao` como **Test Sources Root** para executar o verificador pelo IDE.
+5. Abra `src/app/Main.java` e execute `Main.main()` pelo botão **Run**.
+6. Para executar os testes, abra `verificacao/VerificarRegras.java` e execute `VerificarRegras.main()`.
 
-## 12. Considerações finais
+### Pelo terminal do Windows (PowerShell)
 
-O Estacionamento Inteligente busca representar um sistema real de gerenciamento de estacionamentos, aplicando os princípios de Programação Orientada a Objetos e boas práticas de desenvolvimento de software.
+Na raiz do projeto:
 
-Mais do que implementar funcionalidades, o objetivo é construir um modelo de domínio consistente, no qual as próprias classes sejam responsáveis por proteger as regras de negócio e impedir estados inválidos.
+```powershell
+New-Item -ItemType Directory -Path out -Force | Out-Null
+$arquivos = Get-ChildItem src,verificacao -Recurse -Filter *.java | ForEach-Object { $_.FullName }
+javac -encoding UTF-8 -d out $arquivos
+java -cp out app.Main
+```
 
-O projeto faz parte da avaliação AV2 da disciplina de Programação Orientada a Objetos em Java, ministrada pelo professor Jesse Guimarães, no segundo semestre de 2026, no UniAnchieta.
+Para executar as verificações automatizadas após compilar:
+
+```powershell
+java -cp out verificacao.VerificarRegras
+```
+
+### Pelo terminal do Linux ou macOS
+
+Na raiz do projeto:
+
+```bash
+mkdir -p out
+find src verificacao -name '*.java' -print0 | xargs -0 javac -encoding UTF-8 -d out
+java -cp out app.Main
+```
+
+Para executar as verificações automatizadas:
+
+```bash
+java -cp out verificacao.VerificarRegras
+```
+
+A saída esperada dos testes é:
+
+```text
+SUCESSO: 41 verificações passaram.
+```
+
+## 9. Dados de demonstração carregados na inicialização
+
+O `Main.java` inicializa uma unidade chamada **Estacionamento do Jessé**, com a seguinte configuração:
+
+| Categoria | Quantidade |
+|---|---:|
+| Vagas de carro | 5 |
+| Vagas de moto | 3 |
+| Vagas elétricas | 2 |
+| Vagas PcD | 2 |
+| **Total** | **12** |
+
+A tarifa inicial é de **R$ 10,00 por hora**, com teto de **R$ 50,00 por 24 horas** e recarga elétrica de **R$ 3,00/kWh**.
+
+Também são registrados **três mensalistas** e **seis tickets**. Após a inicialização, os tickets estão assim:
+
+| Ticket | Veículo | Vaga | Situação |
+|---|---|---|---|
+| T001 | ABC1234 (carro) | C001 | ABERTO |
+| T002 | DEF5678 (moto) | M001 | ABERTO |
+| T003 | ELT1A23 (elétrico mensalista) | E001 | PAGO |
+| T004 | GHI2B34 (PcD) | P001 | ABERTO |
+| T005 | JKL9876 (carro mensalista em atraso) | C002 | ABERTO |
+| T006 | PQR4D56 (elétrico) | E002 | ENCERRADO |
+
+Assim, o cenário inicial possui **cinco vagas ocupadas**, com **quatro tickets abertos**, **um pago** e **um encerrado**. Os tickets T003 e T006 registram, respectivamente, **R$ 6,00** e **R$ 12,00** de recarga, totalizando **R$ 18,00** de receita de tickets elétricos no cenário inicial.
+
+**Observação:** no código atual, a mensagem inicial informa incorretamente “2 mensalistas”; são **3 mensalistas** cadastrados. Recomenda-se corrigir apenas esse texto no `Main.java`.
+
+## 10. Menu e roteiro básico de demonstração
+
+### Menu inicial
+
+| Opção | Ação |
+|---|---|
+| 1 | Cadastrar estacionamento |
+| 2 | Selecionar estacionamento |
+| 3 | Listar estacionamentos |
+| 0 | Sair |
+
+### Menu da unidade selecionada
+
+| Opção | Ação |
+|---|---|
+| 1 | Registrar entrada |
+| 2 | Consultar valor do ticket |
+| 3 | Registrar pagamento |
+| 4 | Liberar cancela / registrar saída |
+| 5 | Bloquear ou desbloquear vaga |
+| 6 | Gerenciar mensalistas |
+| 7 | Listar vagas por código ou status |
+| 8 | Listar tickets |
+| 9 | Relatórios gerenciais |
+| 10 | Trocar política de tarifa |
+| 11 | Listar cobranças |
+| 12 ou 0 | Voltar à seleção de estacionamentos |
+
+**Sugestão para a demonstração:** execute `Main.main()`, selecione a opção **2**, informe **Estacionamento do Jessé**, consulte as vagas pela opção **7**, os tickets pela opção **8** e os três relatórios pela opção **9 → 4**. Depois use a opção **4** com o ticket **T003** para demonstrar que um pagamento confirmado permite liberar a cancela e desocupar a vaga elétrica.
+
+Para demonstrar a regra dos 15 minutos sem esperar o tempo real, execute `VerificarRegras.main()`. O verificador injeta um `Clock` ajustável e simula 15, 16, 61 e mais minutos de permanência imediatamente.
+
+## 11. Documentação e decisões arquiteturais
+
+- [`docs/glossario.md`](docs/glossario.md) — linguagem ubíqua do domínio.
+- [`docs/regras.md`](docs/regras.md) — nove regras e matriz de rastreabilidade.
+- [`docs/adr/0001-vaga-como-classe-abstrata.md`](docs/adr/0001-vaga-como-classe-abstrata.md) — escolha da hierarquia abstrata de vagas.
+- [`docs/adr/0002-composicao-politica-de-tarifa.md`](docs/adr/0002-composicao-politica-de-tarifa.md) — composição e Strategy para tarifa.
+- [`docs/adr/0003-controle-compartilhado-de-ocupacao.md`](docs/adr/0003-controle-compartilhado-de-ocupacao.md) — prevenção de placas duplicadas entre unidades.
+- [`docs/diagrama-classes.md`](docs/diagrama-classes.md) e [`docs/diagrama-classes.dot`](docs/diagrama-classes.dot) — estrutura de classes e relacionamentos.
+- [`docs/verificacoes.md`](docs/verificacoes.md) — cobertura e execução do verificador.
+
+## 12. Limitações e possíveis melhorias
+
+O projeto tem finalidade acadêmica e opera em um único processo, com interação por terminal. Como melhorias futuras, podem ser considerados persistência em arquivo ou banco de dados, histórico financeiro de mensalidades, troco em pagamentos, interfaces gráficas, integração com cancelas físicas, testes JUnit 5 e controle de concorrência para múltiplos operadores.
+
+## 13. Considerações finais
+
+O **Estacionamento Inteligente** demonstra conceitos de Programação Orientada a Objetos, como abstração, herança, interfaces, composição, encapsulamento, polimorfismo, objetos de valor, enums e exceções de domínio. O principal objetivo é concentrar as regras nas próprias entidades e serviços do negócio, impedindo operações inválidas e mantendo o estado do sistema consistente.
+
+A implementação contempla os requisitos **R01 a R12**, documenta **nove regras de negócio** e realiza os desafios **C (Strategy), D (Streams) e F (arquitetura em camadas)** da AV2.
