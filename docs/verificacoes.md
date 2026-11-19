@@ -1,4 +1,4 @@
-# Verificações executáveis (Java 21, sem dependências)
+# Verificações executáveis (Java 25, sem dependências)
 
 `verificacao/VerificarRegras.java` executa **41 verificações** com `AssertionError` se falhar alguma regra. Não usa JUnit e portanto **não equivale** ao desafio A da Trilha Vá Além.
 
